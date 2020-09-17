@@ -5,9 +5,8 @@ const User = require('../models/user');
 module.exports = async (req, res, next) => {
   const authHeader = req.get('Authorization');
   if (!authHeader) {
-    const error = new Error('Not authorized');
-    error.statusCode = 401;
-    throw error;
+    req.isAuth = false;
+    return next();
   }
   //sample token from client:  Bearer sdfs454543sdfdf
   const token = authHeader.split(' ')[1];
@@ -15,15 +14,15 @@ module.exports = async (req, res, next) => {
   try {
     decodedToken = jwt.verify(token, 'mysupersecret');
   } catch (err) {
-    err.statusCode = 500;
-    throw err;
+    req.isAuth = false;
+    return next();
   }
   if (!decodedToken) {
-    const error = new Error('Not authorized');
-    error.statusCode = 401;
-    throw error;
+    req.isAuth = false;
+    return next();
   }
   req.userId = decodedToken.userId;
+  req.isAuth = true;
   try {
     const user = await User.findByPk(req.userId);
     req.user = user;

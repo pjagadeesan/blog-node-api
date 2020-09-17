@@ -22,7 +22,6 @@ exports.getPosts = async (req, res, next) => {
         creator: post.user.name,
       };
     });
-    console.log(resPosts);
     res.status(200).json({
       message: 'Fetched posts successfuly',
       posts: resPosts,
